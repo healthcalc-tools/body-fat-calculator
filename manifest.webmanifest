@@ -4,8 +4,8 @@
   "start_url": "/body-fat-calculator/",
   "scope": "/body-fat-calculator/",
   "display": "standalone",
-  "background_color": "#f5f7fb",
-  "theme_color": "#f5f7fb",
+  "background_color": "#F5F7FB",
+  "theme_color": "#DCEEFF",
   "icons": [
     {
       "src": "icon.svg",
