@@ -1,6 +1,6 @@
 {
-  "name": "Body Fat Calculator",
-  "short_name": "Body Fat",
+  "name": "BodyMasS",
+  "short_name": "BodyMasS",
   "start_url": "/body-fat-calculator/",
   "scope": "/body-fat-calculator/",
   "display": "standalone",
