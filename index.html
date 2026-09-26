@@ -60,6 +60,7 @@ button.secondary{border:1px solid var(--line);background:white;color:#405a78}
 .mLabel{font-size:12px;font-weight:800;color:#405a78;margin-bottom:4px}
 .mValue{font-size:22px;font-weight:900;color:#183153;letter-spacing:-.03em}
 .rangeBox{background:#f8faff;border:1px solid #dfe5ef;border-radius:16px;padding:14px;color:#405a78}
+#bmiRangeExplain{margin-bottom:16px}
 .bandsTitle{font-size:14px;font-weight:900;color:#183153;margin-bottom:10px}
 .bandsWrap{display:grid;gap:8px}
 .bandRow{display:flex;justify-content:space-between;align-items:center;gap:12px;border-radius:12px;padding:11px 13px;font-size:14px}
@@ -96,6 +97,19 @@ details.about a{color:#274f9b}
 <main class="app">
 <h1>Body Fat Calculator</h1>
 <p class="intro">Estimate your BMI, body fat percentage and lean body mass from a few simple body measurements.</p>
+
+<section class="card measure">
+<h2>How to measure</h2>
+<div class="measuregrid">
+<strong>Weight</strong><span>Naked.</span>
+<strong>Height</strong><span>Without shoes.</span>
+<strong>Neck</strong><span>Just below the larynx/Adam’s apple, tape level.</span>
+<strong>Waist</strong><span>At navel level, relaxed, after a normal exhalation.</span>
+<strong id="hipHelpLabel" style="display:none">Hips</strong><span id="hipHelp" style="display:none">Around the widest part of the buttocks.</span>
+</div>
+<div class="trackingTip"><strong>For tracking:</strong> measure at roughly the same time of day and use the same tape position and technique each time.</div>
+<div class="note">This is an estimate rather than a direct measurement such as DEXA. Small differences in tape placement can shift the result.</div>
+</section>
 
 <section class="card">
 <div class="kicker">Sex used for equation</div>
@@ -163,17 +177,7 @@ details.about a{color:#274f9b}
 <div class="rangeBox" id="rangeExplain"></div>
 </section>
 
-<section class="card measure">
-<h2>How to measure</h2>
-<div class="measuregrid">
-<strong>Height</strong><span>Without shoes.</span>
-<strong>Neck</strong><span>Just below the larynx/Adam’s apple, tape level.</span>
-<strong>Waist</strong><span>At navel level, relaxed, after a normal exhalation.</span>
-<strong id="hipHelpLabel" style="display:none">Hips</strong><span id="hipHelp" style="display:none">Around the widest part of the buttocks.</span>
-</div>
-<div class="trackingTip"><strong>For tracking:</strong> measure at roughly the same time of day and use the same tape position and technique each time.</div>
-<div class="note">This is an estimate rather than a direct measurement such as DEXA. Small differences in tape placement can shift the result.</div>
-</section>
+
 
 <details class="about">
 <summary>About this estimate</summary>
@@ -293,7 +297,7 @@ var bands=sex==="male"
 rangeExplain.replaceChildren();
 var title=document.createElement("div");
 title.className="bandsTitle";
-title.textContent="Reference bands";
+title.textContent="Body fat % reference range";
 rangeExplain.appendChild(title);
 var wrap=document.createElement("div");
 wrap.className="bandsWrap";
@@ -377,7 +381,7 @@ bmiMeaningText.textContent="Your BMI is "+bmi.toFixed(1)+", which is in the obes
 bmiMeaningText.textContent="Your BMI is "+bmi.toFixed(1)+", which is below the healthy range. Depending on your build and circumstances, it may be worth reviewing nutrition and overall health.";
 }
 renderAgeContext(bf);
-meaningText.textContent="An estimated body-fat level of "+bf.toFixed(1)+"% means that about "+bf.toFixed(1)+"% of your body weight is estimated to be fat, with the remaining "+(100-bf).toFixed(1)+"% being lean body mass.";
+meaningText.textContent="Your estimated body-fat level of "+bf.toFixed(1)+"% means that about "+bf.toFixed(1)+"% of your body weight is estimated to be fat, with the remaining "+(100-bf).toFixed(1)+"% being lean body mass.";
 renderBands();
 interpretation.style.display="block";
 }
