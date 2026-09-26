@@ -3,6 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Body Fat">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
 <title>Body Fat Calculator</title>
 <style>
 :root{--bg:#f5f7fb;--card:#fff;--text:#183153;--muted:#405a78;--line:#e2e6ee;--accent:#2f8f4e;--danger:#a43b32;--shadow:0 12px 34px rgba(25,33,55,.08)}
@@ -57,6 +64,17 @@ button.secondary{border:1px solid var(--line);background:white;color:#405a78}
 .band-average{background:#ffedd5;color:#a8510a}
 .band-high{background:#fee2e2;color:#a82b2b}
 .bandNote{font-size:11px;line-height:1.4;color:#60758c;margin-top:10px}
+.ageContext{background:#f4f7fb;border:1px solid #dfe6ef;border-radius:14px;padding:13px;margin:12px 0;font-size:13px;line-height:1.5;color:#405a78}
+.ageContext strong{color:#183153}
+.trackingTip{margin-top:12px;padding:11px 12px;background:#eef6f1;border-radius:12px;font-size:13px;line-height:1.45;color:#274766}
+details.about{background:#fff;border:1px solid var(--line);border-radius:18px;padding:0 16px;margin:14px 0;box-shadow:var(--shadow)}
+details.about summary{cursor:pointer;font-weight:850;color:#183153;padding:15px 0;list-style:none}
+details.about summary::-webkit-details-marker{display:none}
+details.about summary:after{content:"+";float:right;font-size:20px;line-height:1;color:#405a78}
+details.about[open] summary:after{content:"–"}
+details.about .detailsBody{padding:0 0 15px;font-size:13px;line-height:1.55;color:#405a78}
+details.about p{margin:0 0 10px}
+details.about a{color:#274f9b}
 .measuregrid{display:grid;grid-template-columns:74px 1fr;gap:9px 10px;font-size:13px;line-height:1.45}
 .measuregrid strong{color:#274766}
 .measuregrid span{color:var(--muted)}
@@ -85,6 +103,7 @@ button.secondary{border:1px solid var(--line);background:white;color:#405a78}
 
 <div class="spacer"></div>
 <div class="grid">
+<div class="field"><label for="age">Age <span style="font-weight:600;color:#60758c">(optional)</span></label><div class="input"><input id="age" type="number" inputmode="numeric" min="18" max="120" step="1" placeholder="66"><span class="unit">yr</span></div></div>
 <div class="field"><label for="weight">Weight</label><div class="input"><input id="weight" type="number" inputmode="decimal" step="0.1" placeholder="82"><span class="unit" id="weightUnit">kg</span></div></div>
 <div class="field"><label for="height">Height</label><div class="input"><input id="height" type="number" inputmode="decimal" step="0.1" placeholder="178"><span class="unit lengthUnit">cm</span></div></div>
 <div class="field"><label for="neck">Neck</label><div class="input"><input id="neck" type="number" inputmode="decimal" step="0.1" placeholder="40"><span class="unit lengthUnit">cm</span></div></div>
@@ -118,7 +137,9 @@ button.secondary{border:1px solid var(--line);background:white;color:#405a78}
 <div class="miniStats">
 <div class="miniStat"><div class="mLabel">Estimated fat mass</div><div class="mValue" id="fatMass">—</div></div>
 <div class="miniStat"><div class="mLabel">Estimated lean proportion</div><div class="mValue" id="leanPct">—</div></div>
+<div class="miniStat"><div class="mLabel">BMI</div><div class="mValue" id="bmiValue">—</div></div>
 </div>
+<div class="ageContext" id="ageContext" style="display:none"></div>
 <p>Lean body mass means everything except estimated fat mass — including muscle, bone, organs and body water.</p>
 <div class="rangeBox" id="rangeExplain"></div>
 </section>
@@ -131,8 +152,25 @@ button.secondary{border:1px solid var(--line);background:white;color:#405a78}
 <strong>Waist</strong><span>At navel level, relaxed, after a normal exhalation.</span>
 <strong id="hipHelpLabel" style="display:none">Hips</strong><span id="hipHelp" style="display:none">Around the widest part of the buttocks.</span>
 </div>
+<div class="trackingTip"><strong>For tracking:</strong> measure at roughly the same time of day and use the same tape position and technique each time.</div>
 <div class="note">This is an estimate rather than a direct measurement such as DEXA. Small differences in tape placement can shift the result.</div>
 </section>
+
+<details class="about">
+<summary>About this estimate</summary>
+<div class="detailsBody">
+<p>This calculator uses a circumference-based body-fat equation. It is useful for following trends, but it is not a direct measurement such as DEXA and an individual result can be several percentage points away from true body fat.</p>
+<p>The coloured Athletic/Fit/Average/High bands are broad adult fitness categories and are not age-adjusted. If you enter your age, the calculator also shows a separate age-and-sex health context based on provisional reference ranges published by Gallagher and colleagues.</p>
+<p><a href="https://pubmed.ncbi.nlm.nih.gov/10966886/" target="_blank" rel="noopener">Gallagher et al., American Journal of Clinical Nutrition (2000)</a></p>
+</div>
+</details>
+
+<details class="about">
+<summary>Use as an app on iPhone</summary>
+<div class="detailsBody">
+<p>Open this page in Safari, tap the Share button, choose <strong>Add to Home Screen</strong>, then tap <strong>Add</strong>. It will open from your Home Screen in its own app-like window.</p>
+</div>
+</details>
 </main>
 
 <script>
@@ -140,10 +178,10 @@ button.secondary{border:1px solid var(--line);background:white;color:#405a78}
 "use strict";
 var sex="male",units="metric";
 function $(id){return document.getElementById(id)}
-var weight=$("weight"),height=$("height"),neck=$("neck"),waist=$("waist"),hip=$("hip");
+var age=$("age"),weight=$("weight"),height=$("height"),neck=$("neck"),waist=$("waist"),hip=$("hip");
 var bodyFat=$("bodyFat"),leanMass=$("leanMass"),leanUnit=$("leanUnit"),note=$("bodyFatNote");
 var error=$("error"),hipField=$("hipField"),hipHelp=$("hipHelp"),hipHelpLabel=$("hipHelpLabel");
-var interpretation=$("interpretation"),meaningText=$("meaningText"),fatMass=$("fatMass"),leanPct=$("leanPct"),rangeExplain=$("rangeExplain");
+var interpretation=$("interpretation"),meaningText=$("meaningText"),fatMass=$("fatMass"),leanPct=$("leanPct"),bmiValue=$("bmiValue"),ageContext=$("ageContext"),rangeExplain=$("rangeExplain");
 var bodyFatCard=$("bodyFatCard"),leanMassCard=$("leanMassCard");
 
 function value(el){var n=parseFloat(el.value);return isFinite(n)?n:NaN}
@@ -214,6 +252,22 @@ noteEl.className="bandNote";
 noteEl.textContent="Broad adult reference bands; they are not age-adjusted. Very low results fall outside these bands.";
 rangeExplain.appendChild(noteEl);
 }
+function renderAgeContext(bf){
+var a=value(age);
+if(!isFinite(a)||a<=0){ageContext.style.display="none";return}
+var low,high,label;
+if(a>=20&&a<=39){label="20–39";if(sex==="male"){low=8;high=19}else{low=21;high=32}}
+else if(a>=40&&a<=59){label="40–59";if(sex==="male"){low=11;high=21}else{low=23;high=33}}
+else if(a>=60&&a<=79){label="60–79";if(sex==="male"){low=13;high=24}else{low=24;high=35}}
+else{
+ageContext.innerHTML="<strong>Age & sex context:</strong> the age-specific reference table used here covers adults aged 20–79, so no age-specific comparison is shown.";
+ageContext.style.display="block";return
+}
+var sexWord=sex==="male"?"men":"women";
+var relation=bf<low?"below":(bf>high?"above":"within");
+ageContext.innerHTML="<strong>Age & sex context:</strong> for "+sexWord+" aged "+label+", Gallagher et al. proposed a healthy reference range of "+low+"–"+high+"% body fat. Your estimate is "+relation+" that range.";
+ageContext.style.display="block";
+}
 function calculate(){
 hideError();
 var wt=value(weight),h=value(height),n=value(neck),w=value(waist),hp=value(hip);
@@ -231,6 +285,8 @@ bf=163.205*Math.log10(wi+hpi-ni)-97.684*Math.log10(hi)-78.387;
 if(!isFinite(bf)||bf<2||bf>70){showError("Those measurements produce an implausible result. Please check units and tape placement.");return}
 
 var wtKg=units==="metric"?wt:wt*0.45359237;
+var heightM=(units==="metric"?h:h*2.54)/100;
+var bmi=wtKg/(heightM*heightM);
 var leanKg=wtKg*(1-bf/100),fatKg=wtKg*(bf/100);
 var category=getCategory(bf);
 bodyFat.textContent=bf.toFixed(1);
@@ -242,6 +298,8 @@ leanMass.textContent=leanKg.toFixed(1);leanUnit.textContent="kg";fatMass.textCon
 leanMass.textContent=(leanKg/0.45359237).toFixed(1);leanUnit.textContent="lb";fatMass.textContent=(fatKg/0.45359237).toFixed(1)+" lb";
 }
 leanPct.textContent=(100-bf).toFixed(1)+"%";
+bmiValue.textContent=bmi.toFixed(1);
+renderAgeContext(bf);
 meaningText.textContent="An estimated body-fat level of "+bf.toFixed(1)+"% means that about "+bf.toFixed(1)+"% of your body weight is estimated to be fat, with the remaining "+(100-bf).toFixed(1)+"% being lean body mass.";
 renderBands();
 interpretation.style.display="block";
@@ -265,14 +323,15 @@ $("weightUnit").textContent=units==="metric"?"kg":"lb";leanUnit.textContent=unit
 if(bodyFat.textContent!=="—")calculate()
 }
 function clearAll(){
-[weight,height,neck,waist,hip].forEach(function(input){input.value=""});
-hideError();bodyFat.textContent="—";leanMass.textContent="—";note.textContent="Enter measurements and tap Calculate.";interpretation.style.display="none";applyResultTheme("neutral");weight.focus()
+[age,weight,height,neck,waist,hip].forEach(function(input){input.value=""});
+hideError();bodyFat.textContent="—";leanMass.textContent="—";note.textContent="Enter measurements and tap Calculate.";interpretation.style.display="none";ageContext.style.display="none";applyResultTheme("neutral");weight.focus()
 }
 document.querySelectorAll("#sexToggle button").forEach(function(btn){btn.addEventListener("click",function(){setSex(btn.getAttribute("data-sex"))})});
 document.querySelectorAll("#unitToggle button").forEach(function(btn){btn.addEventListener("click",function(){setUnits(btn.getAttribute("data-units"))})});
 $("calculateBtn").addEventListener("click",calculate);
 $("clearBtn").addEventListener("click",clearAll);
-[weight,height,neck,waist,hip].forEach(function(input){input.addEventListener("keydown",function(e){if(e.key==="Enter")calculate()})});
+[age,weight,height,neck,waist,hip].forEach(function(input){input.addEventListener("keydown",function(e){if(e.key==="Enter")calculate()})});
+age.addEventListener("input",function(){if(bodyFat.textContent!=="—")renderAgeContext(parseFloat(bodyFat.textContent))});
 })();
 </script>
 </body>
