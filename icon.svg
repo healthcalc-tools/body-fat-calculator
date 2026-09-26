@@ -1,5 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<rect width="512" height="512" rx="112" fill="#183153"/>
-<circle cx="256" cy="256" r="150" fill="#2f8f4e"/>
-<text x="256" y="292" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="150" font-weight="700" fill="#ffffff">BF</text>
+  <rect width="512" height="512" rx="112" fill="#DCEEFF"/>
+  <circle cx="256" cy="256" r="172" fill="#DDF6E7"/>
+  <rect x="128" y="128" width="256" height="256" rx="72" fill="#F8FCFF" stroke="#8FB6D9" stroke-width="14"/>
+  <path d="M190 214a66 66 0 0 1 132 0" fill="none" stroke="#2F6F8F" stroke-width="18" stroke-linecap="round"/>
+  <circle cx="256" cy="214" r="16" fill="#2F6F8F"/>
+  <path d="M256 214l45-34" stroke="#2F6F8F" stroke-width="14" stroke-linecap="round"/>
+  <path d="M190 300h132" stroke="#5A9B75" stroke-width="18" stroke-linecap="round"/>
+  <path d="M178 336h156" stroke="#5A9B75" stroke-width="18" stroke-linecap="round" opacity=".8"/>
 </svg>
