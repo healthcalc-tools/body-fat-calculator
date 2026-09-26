@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Body Fat Calculator</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#183153;--muted:#405a78;--line:#e2e6ee;--accent:#2f8f4e;--danger:#a43b32;--shadow:0 12px 34px rgba(25,33,55,.08)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.app{max-width:560px;margin:auto;padding:24px 16px 46px}
+h1{font-size:34px;letter-spacing:-.04em;margin:0 0 6px}
+.intro{color:var(--muted);margin:0 0 18px;line-height:1.45}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:var(--shadow);margin:14px 0}
+.kicker{font-size:13px;font-weight:800;color:#274766;margin-bottom:8px}
+.segment{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#f0f2f6;padding:5px;border-radius:14px}
+.segment button{appearance:none;border:0;background:transparent;border-radius:10px;padding:11px 10px;color:#4f6781;font-size:15px;font-weight:800;cursor:pointer}
+.segment button.active{background:#fff;color:#183153;box-shadow:0 2px 8px rgba(15,23,42,.1)}
+.spacer{height:16px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field label{display:block;font-size:13px;font-weight:800;color:#274766;margin-bottom:7px}
+.input{position:relative}
+input{width:100%;appearance:none;border:1px solid #dce1e9;background:#fbfcfe;border-radius:14px;padding:14px 52px 14px 14px;font-size:20px;font-weight:750;color:#183153;outline:none}
+input:focus{border-color:#92a5ff;box-shadow:0 0 0 4px rgba(56,89,232,.1);background:white}
+.unit{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:13px;color:#60758c;font-weight:800}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+button.primary,button.secondary{appearance:none;border-radius:14px;padding:13px;font-size:15px;font-weight:850;cursor:pointer}
+button.primary{border:0;background:#2f8f4e;color:#fff}
+button.secondary{border:1px solid var(--line);background:white;color:#405a78}
+.error{display:none;margin-top:12px;border:1px solid #ffd3cc;background:#fff4f2;color:var(--danger);padding:11px 12px;border-radius:13px;font-size:13px;font-weight:750;line-height:1.4}
+.results{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.result{background:linear-gradient(145deg,#242f65,#1c2550);color:white;border-radius:20px;padding:18px;min-height:144px;transition:background .25s ease,box-shadow .25s ease}
+.result.alt{background:linear-gradient(145deg,#2b4166,#20324d)}
+.result.theme-athletic,.result.alt.theme-athletic{background:linear-gradient(145deg,#3f7fd8,#2d62ad)}
+.result.theme-fit,.result.alt.theme-fit{background:linear-gradient(145deg,#3a9b61,#267747)}
+.result.theme-average,.result.alt.theme-average{background:linear-gradient(145deg,#d88932,#b96d1f)}
+.result.theme-high,.result.alt.theme-high{background:linear-gradient(145deg,#d85b58,#b53b39)}
+.rlabel{font-size:13px;font-weight:800;opacity:.7}
+.rvalue{font-size:42px;font-weight:900;letter-spacing:-.05em;line-height:1;margin-top:14px}
+.runit{font-size:17px;font-weight:800;opacity:.7;margin-left:3px}
+.rsub{font-size:12px;opacity:.7;margin-top:9px;line-height:1.35}
+.interpretation{display:none}
+.interpretation h2,.measure h2{font-size:20px;margin:0 0 12px;letter-spacing:-.02em}
+.interpretation p{font-size:15px;line-height:1.55;color:#405a78;margin:0 0 12px}
+.miniStats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.miniStat{background:#f5f7fb;border:1px solid #e4e8ef;border-radius:14px;padding:13px}
+.mLabel{font-size:12px;font-weight:800;color:#405a78;margin-bottom:4px}
+.mValue{font-size:22px;font-weight:900;color:#183153;letter-spacing:-.03em}
+.rangeBox{background:#f8faff;border:1px solid #dfe5ef;border-radius:16px;padding:14px;color:#405a78}
+.bandsTitle{font-size:14px;font-weight:900;color:#183153;margin-bottom:10px}
+.bandsWrap{display:grid;gap:8px}
+.bandRow{display:flex;justify-content:space-between;align-items:center;gap:12px;border-radius:12px;padding:11px 13px;font-size:14px}
+.bandLabel{font-weight:900}
+.bandRange{font-weight:800}
+.band-athletic{background:#dbeafe;color:#1e4f9a}
+.band-fit{background:#dcfce7;color:#17643a}
+.band-average{background:#ffedd5;color:#a8510a}
+.band-high{background:#fee2e2;color:#a82b2b}
+.bandNote{font-size:11px;line-height:1.4;color:#60758c;margin-top:10px}
+.measuregrid{display:grid;grid-template-columns:74px 1fr;gap:9px 10px;font-size:13px;line-height:1.45}
+.measuregrid strong{color:#274766}
+.measuregrid span{color:var(--muted)}
+.note{font-size:12px;color:#60758c;line-height:1.45;margin-top:14px}
+@media(max-width:430px){h1{font-size:30px}.grid,.results,.miniStats{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="app">
+<h1>Body Fat Calculator</h1>
+<p class="intro">Estimate your body fat percentage and lean body mass from a few simple body measurements.</p>
+
+<section class="card">
+<div class="kicker">Sex used for equation</div>
+<div class="segment" id="sexToggle">
+<button type="button" class="active" data-sex="male">Male</button>
+<button type="button" data-sex="female">Female</button>
+</div>
+
+<div class="spacer"></div>
+<div class="kicker">Units</div>
+<div class="segment" id="unitToggle">
+<button type="button" class="active" data-units="metric">Metric</button>
+<button type="button" data-units="imperial">Imperial</button>
+</div>
+
+<div class="spacer"></div>
+<div class="grid">
+<div class="field"><label for="weight">Weight</label><div class="input"><input id="weight" type="number" inputmode="decimal" step="0.1" placeholder="82"><span class="unit" id="weightUnit">kg</span></div></div>
+<div class="field"><label for="height">Height</label><div class="input"><input id="height" type="number" inputmode="decimal" step="0.1" placeholder="178"><span class="unit lengthUnit">cm</span></div></div>
+<div class="field"><label for="neck">Neck</label><div class="input"><input id="neck" type="number" inputmode="decimal" step="0.1" placeholder="40"><span class="unit lengthUnit">cm</span></div></div>
+<div class="field"><label for="waist">Waist</label><div class="input"><input id="waist" type="number" inputmode="decimal" step="0.1" placeholder="92"><span class="unit lengthUnit">cm</span></div></div>
+<div class="field" id="hipField" style="display:none"><label for="hip">Hips</label><div class="input"><input id="hip" type="number" inputmode="decimal" step="0.1" placeholder="100"><span class="unit lengthUnit">cm</span></div></div>
+</div>
+
+<div class="error" id="error"></div>
+<div class="actions">
+<button type="button" class="primary" id="calculateBtn">Calculate</button>
+<button type="button" class="secondary" id="clearBtn">Clear</button>
+</div>
+</section>
+
+<section class="results">
+<div class="result" id="bodyFatCard">
+<div class="rlabel">Body fat</div>
+<div><span class="rvalue" id="bodyFat">—</span><span class="runit">%</span></div>
+<div class="rsub" id="bodyFatNote">Enter measurements and tap Calculate.</div>
+</div>
+<div class="result alt" id="leanMassCard">
+<div class="rlabel">Lean body mass</div>
+<div><span class="rvalue" id="leanMass">—</span><span class="runit" id="leanUnit">kg</span></div>
+<div class="rsub">Weight excluding estimated fat mass.</div>
+</div>
+</section>
+
+<section class="card interpretation" id="interpretation">
+<h2>What this means</h2>
+<p id="meaningText"></p>
+<div class="miniStats">
+<div class="miniStat"><div class="mLabel">Estimated fat mass</div><div class="mValue" id="fatMass">—</div></div>
+<div class="miniStat"><div class="mLabel">Estimated lean proportion</div><div class="mValue" id="leanPct">—</div></div>
+</div>
+<p>Lean body mass means everything except estimated fat mass — including muscle, bone, organs and body water.</p>
+<div class="rangeBox" id="rangeExplain"></div>
+</section>
+
+<section class="card measure">
+<h2>How to measure</h2>
+<div class="measuregrid">
+<strong>Height</strong><span>Without shoes.</span>
+<strong>Neck</strong><span>Just below the larynx/Adam’s apple, tape level.</span>
+<strong>Waist</strong><span>At navel level, relaxed, after a normal exhalation.</span>
+<strong id="hipHelpLabel" style="display:none">Hips</strong><span id="hipHelp" style="display:none">Around the widest part of the buttocks.</span>
+</div>
+<div class="note">This is an estimate rather than a direct measurement such as DEXA. Small differences in tape placement can shift the result.</div>
+</section>
+</main>
+
+<script>
+(function(){
+"use strict";
+var sex="male",units="metric";
+function $(id){return document.getElementById(id)}
+var weight=$("weight"),height=$("height"),neck=$("neck"),waist=$("waist"),hip=$("hip");
+var bodyFat=$("bodyFat"),leanMass=$("leanMass"),leanUnit=$("leanUnit"),note=$("bodyFatNote");
+var error=$("error"),hipField=$("hipField"),hipHelp=$("hipHelp"),hipHelpLabel=$("hipHelpLabel");
+var interpretation=$("interpretation"),meaningText=$("meaningText"),fatMass=$("fatMass"),leanPct=$("leanPct"),rangeExplain=$("rangeExplain");
+var bodyFatCard=$("bodyFatCard"),leanMassCard=$("leanMassCard");
+
+function value(el){var n=parseFloat(el.value);return isFinite(n)?n:NaN}
+function toInches(n){return units==="metric"?n/2.54:n}
+function showError(msg){error.textContent=msg;error.style.display="block";bodyFat.textContent="—";leanMass.textContent="—";note.textContent="Check the measurements above.";interpretation.style.display="none";applyResultTheme("neutral")}
+function hideError(){error.style.display="none";error.textContent=""}
+function getCategory(bf){
+if(sex==="male"){
+if(bf<6)return{name:"Below reference range",key:"neutral"};
+if(bf<14)return{name:"Athletic",key:"athletic"};
+if(bf<18)return{name:"Fit",key:"fit"};
+if(bf<25)return{name:"Average",key:"average"};
+return{name:"High",key:"high"};
+}else{
+if(bf<14)return{name:"Below reference range",key:"neutral"};
+if(bf<21)return{name:"Athletic",key:"athletic"};
+if(bf<25)return{name:"Fit",key:"fit"};
+if(bf<32)return{name:"Average",key:"average"};
+return{name:"High",key:"high"};
+}}
+function applyResultTheme(key){
+["athletic","fit","average","high"].forEach(function(k){
+bodyFatCard.classList.remove("theme-"+k);
+leanMassCard.classList.remove("theme-"+k);
+});
+if(key!=="neutral"){
+bodyFatCard.classList.add("theme-"+key);
+leanMassCard.classList.add("theme-"+key);
+}
+}
+function renderBands(){
+var bands=sex==="male"
+?[
+{label:"Athletic",range:"6–13%",key:"athletic"},
+{label:"Fit",range:"14–17%",key:"fit"},
+{label:"Average",range:"18–24%",key:"average"},
+{label:"High",range:"25%+",key:"high"}
+]
+:[
+{label:"Athletic",range:"14–20%",key:"athletic"},
+{label:"Fit",range:"21–24%",key:"fit"},
+{label:"Average",range:"25–31%",key:"average"},
+{label:"High",range:"32%+",key:"high"}
+];
+rangeExplain.replaceChildren();
+var title=document.createElement("div");
+title.className="bandsTitle";
+title.textContent="Reference bands";
+rangeExplain.appendChild(title);
+var wrap=document.createElement("div");
+wrap.className="bandsWrap";
+bands.forEach(function(b){
+var row=document.createElement("div");
+row.className="bandRow band-"+b.key;
+var label=document.createElement("span");
+label.className="bandLabel";
+label.textContent=b.label;
+var range=document.createElement("span");
+range.className="bandRange";
+range.textContent=b.range;
+row.appendChild(label);
+row.appendChild(range);
+wrap.appendChild(row);
+});
+rangeExplain.appendChild(wrap);
+var noteEl=document.createElement("div");
+noteEl.className="bandNote";
+noteEl.textContent="Broad adult reference bands; they are not age-adjusted. Very low results fall outside these bands.";
+rangeExplain.appendChild(noteEl);
+}
+function calculate(){
+hideError();
+var wt=value(weight),h=value(height),n=value(neck),w=value(waist),hp=value(hip);
+if(!isFinite(wt)||wt<=0||!isFinite(h)||h<=0||!isFinite(n)||n<=0||!isFinite(w)||w<=0){showError("Please enter weight, height, neck and waist.");return}
+if(sex==="female"&&(!isFinite(hp)||hp<=0)){showError("Please enter hip circumference for the female equation.");return}
+
+var hi=toInches(h),ni=toInches(n),wi=toInches(w),hpi=toInches(hp),bf;
+if(sex==="male"){
+if(wi<=ni){showError("Waist must be larger than neck.");return}
+bf=86.010*Math.log10(wi-ni)-70.041*Math.log10(hi)+36.76;
+}else{
+if(wi+hpi<=ni){showError("Waist + hips must be larger than neck.");return}
+bf=163.205*Math.log10(wi+hpi-ni)-97.684*Math.log10(hi)-78.387;
+}
+if(!isFinite(bf)||bf<2||bf>70){showError("Those measurements produce an implausible result. Please check units and tape placement.");return}
+
+var wtKg=units==="metric"?wt:wt*0.45359237;
+var leanKg=wtKg*(1-bf/100),fatKg=wtKg*(bf/100);
+var category=getCategory(bf);
+bodyFat.textContent=bf.toFixed(1);
+note.textContent=category.name;
+applyResultTheme(category.key);
+if(units==="metric"){
+leanMass.textContent=leanKg.toFixed(1);leanUnit.textContent="kg";fatMass.textContent=fatKg.toFixed(1)+" kg";
+}else{
+leanMass.textContent=(leanKg/0.45359237).toFixed(1);leanUnit.textContent="lb";fatMass.textContent=(fatKg/0.45359237).toFixed(1)+" lb";
+}
+leanPct.textContent=(100-bf).toFixed(1)+"%";
+meaningText.textContent="An estimated body-fat level of "+bf.toFixed(1)+"% means that about "+bf.toFixed(1)+"% of your body weight is estimated to be fat, with the remaining "+(100-bf).toFixed(1)+"% being lean body mass.";
+renderBands();
+interpretation.style.display="block";
+}
+function setSex(next){
+sex=next;
+document.querySelectorAll("#sexToggle button").forEach(function(btn){btn.classList.toggle("active",btn.getAttribute("data-sex")===sex)});
+var female=sex==="female";
+hipField.style.display=female?"block":"none";hipHelp.style.display=female?"block":"none";hipHelpLabel.style.display=female?"block":"none";
+hideError();bodyFat.textContent="—";leanMass.textContent="—";note.textContent="Enter measurements and tap Calculate.";interpretation.style.display="none";applyResultTheme("neutral")
+}
+function setUnits(next){
+if(next===units)return;
+var lengthFactor=next==="imperial"?1/2.54:2.54;
+[height,neck,waist,hip].forEach(function(input){var v=value(input);if(isFinite(v))input.value=(v*lengthFactor).toFixed(1)});
+var wt=value(weight);if(isFinite(wt))weight.value=(wt*(next==="imperial"?2.2046226218:1/2.2046226218)).toFixed(1);
+units=next;
+document.querySelectorAll("#unitToggle button").forEach(function(btn){btn.classList.toggle("active",btn.getAttribute("data-units")===units)});
+document.querySelectorAll(".lengthUnit").forEach(function(el){el.textContent=units==="metric"?"cm":"in"});
+$("weightUnit").textContent=units==="metric"?"kg":"lb";leanUnit.textContent=units==="metric"?"kg":"lb";
+if(bodyFat.textContent!=="—")calculate()
+}
+function clearAll(){
+[weight,height,neck,waist,hip].forEach(function(input){input.value=""});
+hideError();bodyFat.textContent="—";leanMass.textContent="—";note.textContent="Enter measurements and tap Calculate.";interpretation.style.display="none";applyResultTheme("neutral");weight.focus()
+}
+document.querySelectorAll("#sexToggle button").forEach(function(btn){btn.addEventListener("click",function(){setSex(btn.getAttribute("data-sex"))})});
+document.querySelectorAll("#unitToggle button").forEach(function(btn){btn.addEventListener("click",function(){setUnits(btn.getAttribute("data-units"))})});
+$("calculateBtn").addEventListener("click",calculate);
+$("clearBtn").addEventListener("click",clearAll);
+[weight,height,neck,waist,hip].forEach(function(input){input.addEventListener("keydown",function(e){if(e.key==="Enter")calculate()})});
+})();
+</script>
+</body>
+</html>
