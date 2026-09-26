@@ -1,0 +1,17 @@
+{
+  "name": "Body Fat Calculator",
+  "short_name": "Body Fat",
+  "start_url": "/body-fat-calculator/",
+  "scope": "/body-fat-calculator/",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#f5f7fb",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
