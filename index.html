@@ -35,6 +35,12 @@ button.primary,button.secondary{appearance:none;border-radius:14px;padding:13px;
 button.primary{border:0;background:#2f8f4e;color:#fff}
 button.secondary{border:1px solid var(--line);background:white;color:#405a78}
 .error{display:none;margin-top:12px;border:1px solid #ffd3cc;background:#fff4f2;color:var(--danger);padding:11px 12px;border-radius:13px;font-size:13px;font-weight:750;line-height:1.4}
+.bmiResult{margin:14px 0}
+.bmiCard{background:linear-gradient(145deg,#2f8f4e,#24713e);color:white;border-radius:20px;padding:18px;min-height:132px;transition:background .25s ease}
+.bmiCard.theme-underweight{background:linear-gradient(145deg,#6da9d9,#4f86b3)}
+.bmiCard.theme-healthy{background:linear-gradient(145deg,#3a9b61,#267747)}
+.bmiCard.theme-overweight{background:linear-gradient(145deg,#d88932,#b96d1f)}
+.bmiCard.theme-obese{background:linear-gradient(145deg,#d85b58,#b53b39)}
 .results{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .result{background:linear-gradient(145deg,#242f65,#1c2550);color:white;border-radius:20px;padding:18px;min-height:144px;transition:background .25s ease,box-shadow .25s ease}
 .result.alt{background:linear-gradient(145deg,#2b4166,#20324d)}
@@ -63,6 +69,10 @@ button.secondary{border:1px solid var(--line);background:white;color:#405a78}
 .band-fit{background:#dcfce7;color:#17643a}
 .band-average{background:#ffedd5;color:#a8510a}
 .band-high{background:#fee2e2;color:#a82b2b}
+.bmi-underweight{background:#e1f0fb;color:#255b86}
+.bmi-healthy{background:#dcfce7;color:#17643a}
+.bmi-overweight{background:#ffedd5;color:#a8510a}
+.bmi-obese{background:#fee2e2;color:#a82b2b}
 .bandNote{font-size:11px;line-height:1.4;color:#60758c;margin-top:10px}
 .ageContext{background:#f4f7fb;border:1px solid #dfe6ef;border-radius:14px;padding:13px;margin:12px 0;font-size:13px;line-height:1.5;color:#405a78}
 .ageContext strong{color:#183153}
@@ -85,7 +95,7 @@ details.about a{color:#274f9b}
 <body>
 <main class="app">
 <h1>Body Fat Calculator</h1>
-<p class="intro">Estimate your body fat percentage and lean body mass from a few simple body measurements.</p>
+<p class="intro">Estimate your BMI, body fat percentage and lean body mass from a few simple body measurements.</p>
 
 <section class="card">
 <div class="kicker">Sex used for equation</div>
@@ -118,6 +128,14 @@ details.about a{color:#274f9b}
 </div>
 </section>
 
+<section class="bmiResult">
+<div class="bmiCard" id="bmiCard">
+<div class="rlabel">BMI</div>
+<div><span class="rvalue" id="bmiResultValue">—</span></div>
+<div class="rsub" id="bmiResultNote">Enter measurements and tap Calculate.</div>
+</div>
+</section>
+
 <section class="results">
 <div class="result" id="bodyFatCard">
 <div class="rlabel">Body fat</div>
@@ -133,11 +151,12 @@ details.about a{color:#274f9b}
 
 <section class="card interpretation" id="interpretation">
 <h2>What this means</h2>
+<p id="bmiMeaningText"></p>
+<div class="rangeBox" id="bmiRangeExplain"></div>
 <p id="meaningText"></p>
 <div class="miniStats">
 <div class="miniStat"><div class="mLabel">Estimated fat mass</div><div class="mValue" id="fatMass">—</div></div>
 <div class="miniStat"><div class="mLabel">Estimated lean proportion</div><div class="mValue" id="leanPct">—</div></div>
-<div class="miniStat"><div class="mLabel">BMI</div><div class="mValue" id="bmiValue">—</div></div>
 </div>
 <div class="ageContext" id="ageContext" style="display:none"></div>
 <p>Lean body mass means everything except estimated fat mass — including muscle, bone, organs and body water.</p>
@@ -159,6 +178,7 @@ details.about a{color:#274f9b}
 <details class="about">
 <summary>About this estimate</summary>
 <div class="detailsBody">
+<p>BMI uses standard adult cut-offs: healthy 18.5–24.9, overweight 25.0–29.9 and obese 30.0+. Some ethnic groups can develop weight-related health risks at lower BMI levels, so BMI should be interpreted alongside waist measurement and other health factors.</p>
 <p>This calculator uses a circumference-based body-fat equation. It is useful for following trends, but it is not a direct measurement such as DEXA and an individual result can be several percentage points away from true body fat.</p>
 <p>The coloured Athletic/Fit/Average/High bands are broad adult fitness categories and are not age-adjusted. If you enter your age, the calculator also shows a separate age-and-sex health context based on provisional reference ranges published by Gallagher and colleagues.</p>
 <p><a href="https://pubmed.ncbi.nlm.nih.gov/10966886/" target="_blank" rel="noopener">Gallagher et al., American Journal of Clinical Nutrition (2000)</a></p>
@@ -180,13 +200,14 @@ var sex="male",units="metric";
 function $(id){return document.getElementById(id)}
 var age=$("age"),weight=$("weight"),height=$("height"),neck=$("neck"),waist=$("waist"),hip=$("hip");
 var bodyFat=$("bodyFat"),leanMass=$("leanMass"),leanUnit=$("leanUnit"),note=$("bodyFatNote");
+var bmiCard=$("bmiCard"),bmiResultValue=$("bmiResultValue"),bmiResultNote=$("bmiResultNote");
 var error=$("error"),hipField=$("hipField"),hipHelp=$("hipHelp"),hipHelpLabel=$("hipHelpLabel");
-var interpretation=$("interpretation"),meaningText=$("meaningText"),fatMass=$("fatMass"),leanPct=$("leanPct"),bmiValue=$("bmiValue"),ageContext=$("ageContext"),rangeExplain=$("rangeExplain");
+var interpretation=$("interpretation"),meaningText=$("meaningText"),bmiMeaningText=$("bmiMeaningText"),fatMass=$("fatMass"),leanPct=$("leanPct"),ageContext=$("ageContext"),rangeExplain=$("rangeExplain"),bmiRangeExplain=$("bmiRangeExplain");
 var bodyFatCard=$("bodyFatCard"),leanMassCard=$("leanMassCard");
 
 function value(el){var n=parseFloat(el.value);return isFinite(n)?n:NaN}
 function toInches(n){return units==="metric"?n/2.54:n}
-function showError(msg){error.textContent=msg;error.style.display="block";bodyFat.textContent="—";leanMass.textContent="—";note.textContent="Check the measurements above.";interpretation.style.display="none";applyResultTheme("neutral")}
+function showError(msg){error.textContent=msg;error.style.display="block";bodyFat.textContent="—";leanMass.textContent="—";bmiResultValue.textContent="—";bmiResultNote.textContent="Check the measurements above.";note.textContent="Check the measurements above.";interpretation.style.display="none";applyResultTheme("neutral");bmiCard.className="bmiCard"}
 function hideError(){error.style.display="none";error.textContent=""}
 function getCategory(bf){
 if(sex==="male"){
@@ -211,6 +232,49 @@ if(key!=="neutral"){
 bodyFatCard.classList.add("theme-"+key);
 leanMassCard.classList.add("theme-"+key);
 }
+}
+function getBMICategory(bmi){
+if(bmi<18.5)return{name:"Underweight",key:"underweight"};
+if(bmi<25)return{name:"Healthy",key:"healthy"};
+if(bmi<30)return{name:"Overweight",key:"overweight"};
+return{name:"Obese",key:"obese"};
+}
+function applyBMITheme(key){
+["underweight","healthy","overweight","obese"].forEach(function(k){bmiCard.classList.remove("theme-"+k)});
+bmiCard.classList.add("theme-"+key);
+}
+function renderBMIBands(){
+var bands=[
+{label:"Underweight",range:"Below 18.5",key:"underweight"},
+{label:"Healthy",range:"18.5–24.9",key:"healthy"},
+{label:"Overweight",range:"25.0–29.9",key:"overweight"},
+{label:"Obese",range:"30.0+",key:"obese"}
+];
+bmiRangeExplain.replaceChildren();
+var title=document.createElement("div");
+title.className="bandsTitle";
+title.textContent="BMI reference ranges";
+bmiRangeExplain.appendChild(title);
+var wrap=document.createElement("div");
+wrap.className="bandsWrap";
+bands.forEach(function(b){
+var row=document.createElement("div");
+row.className="bandRow bmi-"+b.key;
+var label=document.createElement("span");
+label.className="bandLabel";
+label.textContent=b.label;
+var range=document.createElement("span");
+range.className="bandRange";
+range.textContent=b.range;
+row.appendChild(label);
+row.appendChild(range);
+wrap.appendChild(row);
+});
+bmiRangeExplain.appendChild(wrap);
+var noteEl=document.createElement("div");
+noteEl.className="bandNote";
+noteEl.textContent="Standard adult BMI ranges. BMI is a screening measure and does not distinguish muscle from fat.";
+bmiRangeExplain.appendChild(noteEl);
 }
 function renderBands(){
 var bands=sex==="male"
@@ -287,6 +351,7 @@ if(!isFinite(bf)||bf<2||bf>70){showError("Those measurements produce an implausi
 var wtKg=units==="metric"?wt:wt*0.45359237;
 var heightM=(units==="metric"?h:h*2.54)/100;
 var bmi=wtKg/(heightM*heightM);
+var bmiCategory=getBMICategory(bmi);
 var leanKg=wtKg*(1-bf/100),fatKg=wtKg*(bf/100);
 var category=getCategory(bf);
 bodyFat.textContent=bf.toFixed(1);
@@ -298,7 +363,19 @@ leanMass.textContent=leanKg.toFixed(1);leanUnit.textContent="kg";fatMass.textCon
 leanMass.textContent=(leanKg/0.45359237).toFixed(1);leanUnit.textContent="lb";fatMass.textContent=(fatKg/0.45359237).toFixed(1)+" lb";
 }
 leanPct.textContent=(100-bf).toFixed(1)+"%";
-bmiValue.textContent=bmi.toFixed(1);
+bmiResultValue.textContent=bmi.toFixed(1);
+bmiResultNote.textContent=bmiCategory.name+" range";
+applyBMITheme(bmiCategory.key);
+renderBMIBands();
+if(bmiCategory.key==="healthy"){
+bmiMeaningText.textContent="Your BMI is "+bmi.toFixed(1)+", which is in the healthy range.";
+}else if(bmiCategory.key==="overweight"){
+bmiMeaningText.textContent="Your BMI is "+bmi.toFixed(1)+", which is in the overweight range. If this reflects excess body fat, reducing excess weight may improve long-term health risk, particularly when waist circumference or metabolic risk factors are also raised.";
+}else if(bmiCategory.key==="obese"){
+bmiMeaningText.textContent="Your BMI is "+bmi.toFixed(1)+", which is in the obese range. For most adults with excess body fat, weight loss is associated with meaningful health benefits and lower risk of conditions such as type 2 diabetes and cardiovascular disease.";
+}else{
+bmiMeaningText.textContent="Your BMI is "+bmi.toFixed(1)+", which is below the healthy range. Depending on your build and circumstances, it may be worth reviewing nutrition and overall health.";
+}
 renderAgeContext(bf);
 meaningText.textContent="An estimated body-fat level of "+bf.toFixed(1)+"% means that about "+bf.toFixed(1)+"% of your body weight is estimated to be fat, with the remaining "+(100-bf).toFixed(1)+"% being lean body mass.";
 renderBands();
@@ -309,7 +386,7 @@ sex=next;
 document.querySelectorAll("#sexToggle button").forEach(function(btn){btn.classList.toggle("active",btn.getAttribute("data-sex")===sex)});
 var female=sex==="female";
 hipField.style.display=female?"block":"none";hipHelp.style.display=female?"block":"none";hipHelpLabel.style.display=female?"block":"none";
-hideError();bodyFat.textContent="—";leanMass.textContent="—";note.textContent="Enter measurements and tap Calculate.";interpretation.style.display="none";applyResultTheme("neutral")
+hideError();bodyFat.textContent="—";leanMass.textContent="—";bmiResultValue.textContent="—";bmiResultNote.textContent="Enter measurements and tap Calculate.";bmiCard.className="bmiCard";note.textContent="Enter measurements and tap Calculate.";interpretation.style.display="none";applyResultTheme("neutral")
 }
 function setUnits(next){
 if(next===units)return;
@@ -324,7 +401,7 @@ if(bodyFat.textContent!=="—")calculate()
 }
 function clearAll(){
 [age,weight,height,neck,waist,hip].forEach(function(input){input.value=""});
-hideError();bodyFat.textContent="—";leanMass.textContent="—";note.textContent="Enter measurements and tap Calculate.";interpretation.style.display="none";ageContext.style.display="none";applyResultTheme("neutral");weight.focus()
+hideError();bodyFat.textContent="—";leanMass.textContent="—";bmiResultValue.textContent="—";bmiResultNote.textContent="Enter measurements and tap Calculate.";bmiCard.className="bmiCard";note.textContent="Enter measurements and tap Calculate.";interpretation.style.display="none";ageContext.style.display="none";applyResultTheme("neutral");weight.focus()
 }
 document.querySelectorAll("#sexToggle button").forEach(function(btn){btn.addEventListener("click",function(){setSex(btn.getAttribute("data-sex"))})});
 document.querySelectorAll("#unitToggle button").forEach(function(btn){btn.addEventListener("click",function(){setUnits(btn.getAttribute("data-units"))})});
